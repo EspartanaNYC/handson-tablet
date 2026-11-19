@@ -426,7 +426,7 @@ fun Tutorial(estado: Estado, ir: (String) -> Unit) {
                     Text(msg, color = cor, fontSize = 20.sp, fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.fillMaxWidth().padding(16.dp))
                 }
-                if (g.meta > 1 && !acertou) Text("Faça ${g.meta} vezes", fontSize = 13.sp, color = Color.White.copy(alpha = 0.6f),
+                if (g.meta in 2..10 && !acertou) Text("Faça ${g.meta} vezes", fontSize = 13.sp, color = Color.White.copy(alpha = 0.6f),
                     modifier = Modifier.padding(top = 6.dp))
                 Spacer(Modifier.height(16.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

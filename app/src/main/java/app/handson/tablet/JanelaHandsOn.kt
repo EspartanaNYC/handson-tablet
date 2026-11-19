@@ -51,8 +51,8 @@ class JanelaHandsOn(
         PixelFormat.TRANSLUCENT
     ).apply {
         gravity = Gravity.TOP or Gravity.START
-        x = prefs.getInt(Config.JANELA_X, (24 * dp).toInt())
-        y = prefs.getInt(Config.JANELA_Y, (90 * dp).toInt())
+        x = prefs.getInt(Config.JANELA_X, -1)
+        y = prefs.getInt(Config.JANELA_Y, -1)
     }
 
     private fun medidas(): Pair<Int, Int> = when {
@@ -65,6 +65,11 @@ class JanelaHandsOn(
     fun mostrar() {
         val (w, h) = medidas()
         lp.width = w; lp.height = h
+        if (lp.x < 0 || lp.y < 0) {             // primeira vez: canto de baixo, à direita (tapa menos)
+            val m = ctx.resources.displayMetrics
+            lp.x = m.widthPixels - w - (20 * dp).toInt()
+            lp.y = m.heightPixels - h - (60 * dp).toInt()
+        }
         manterNaTela(false)
         try { wm.addView(view, lp) } catch (_: Exception) {}
     }
