@@ -280,8 +280,9 @@ class HandsOnService : AccessibilityService(), LifecycleOwner, Acoes,
         val v = OverlayView(this)
         v.painel = l.painel
         if (!prefs.getBoolean(Config.GUIA_VISTO, false)) {
-            l.painel.ajuda = true
+            l.painel.ajuda = true                     // na primeira vez, a ajuda aparece por 15 segundos
             prefs.edit().putBoolean(Config.GUIA_VISTO, true).apply()
+            principal.postDelayed({ l.painel.ajuda = false; camada?.postInvalidate() }, 15000)
         }
         val lp = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
