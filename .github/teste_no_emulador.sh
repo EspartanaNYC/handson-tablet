@@ -30,6 +30,7 @@ PY
 )
   echo "tocar '$1' em: $B"
   [ -n "$B" ] && adb shell input tap $B
+  [ -n "$B" ]
 }
 
 # rola até os gestos e abre a demonstração do toque duplo
@@ -50,12 +51,19 @@ sleep 3
 adb shell input swipe 600 400 600 1400 300
 sleep 2
 adb exec-out screencap -p > telas/4_pronto.png
-toca_texto "Ligar o HandsOn"
+toca_texto "Ligar o HandsOn" || true
+sleep 3
+adb shell dumpsys activity services app.handson.tablet | grep -q "isForeground=true" || {
+  echo "botão não encontrado pelo texto: tocando pela posição"; adb shell input tap 595 877; }
 sleep 15
 adb exec-out screencap -p > telas/5_ligado.png
 adb shell input keyevent KEYCODE_HOME
 sleep 6
 adb exec-out screencap -p > telas/6_por_cima.png
+adb shell am start -a android.settings.SETTINGS
+sleep 6
+adb exec-out screencap -p > telas/7_outro_app.png
+adb shell dumpsys activity services app.handson.tablet | grep -E "isForeground|foregroundId" > telas/primeiro_plano.txt
 adb shell dumpsys activity services $PKG | head -40 > telas/servico.txt
 adb logcat -d > telas/logcat.txt
 grep -E "FATAL EXCEPTION|AndroidRuntime|HandsOn|mediapipe|tflite" telas/logcat.txt | head -200 > telas/resumo_log.txt

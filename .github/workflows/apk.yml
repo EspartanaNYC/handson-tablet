@@ -3,6 +3,7 @@ name: Montar o app do HandsOn
 on:
   push:
     branches: [main]
+    paths-ignore: [".github/teste_no_emulador.sh", ".github/workflows/teste.yml"]
   workflow_dispatch:
 
 permissions:
