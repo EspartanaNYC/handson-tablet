@@ -259,9 +259,9 @@ class HandsOnService : AccessibilityService(), LifecycleOwner, Acoes,
             .build()
         val novo = try {
             HandLandmarker.createFromOptions(this, opcoes(Delegate.GPU))
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.w(TAG, "GPU indisponível, usando CPU", e)
-            try { HandLandmarker.createFromOptions(this, opcoes(Delegate.CPU)) } catch (e2: Exception) {
+            try { HandLandmarker.createFromOptions(this, opcoes(Delegate.CPU)) } catch (e2: Throwable) {
                 erro = "Não consegui carregar o modelo da mão: ${e2.message}"
                 Log.e(TAG, "modelo", e2)
                 null
@@ -325,7 +325,7 @@ class HandsOnService : AccessibilityService(), LifecycleOwner, Acoes,
                 quadros = 0; fpsDesde = agoraMs
             }
             camada?.postInvalidateOnAnimation()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.w(TAG, "quadro", e)
         } finally {
             img.close()

@@ -31,9 +31,9 @@ jobs:
       - name: Testar no tablet virtual
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: 30
           target: google_apis
-          arch: x86_64
+          arch: x86
           profile: pixel_tablet
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-front emulated
