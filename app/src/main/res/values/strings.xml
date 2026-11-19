@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HandsOn</string>
+    <string name="servico_nome">HandsOn – gestos com a mão</string>
+    <string name="servico_resumo">Controle o tablet com gestos na frente da câmera</string>
+    <string name="servico_descricao">O HandsOn usa a câmera frontal para ler os gestos da sua mão e transformá-los em toques, rolagens e botões do tablet (Voltar, Início, Notificações, volume). As imagens da câmera são analisadas só no próprio tablet: nada é gravado nem enviado para a internet.</string>
+</resources>
