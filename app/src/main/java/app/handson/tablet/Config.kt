@@ -8,9 +8,13 @@ object Config {
     const val ARQUIVO = "handson"
     const val ALCANCE = "alcance"        // 0 = mão anda mais, 1 = mão anda menos
     const val FIRMEZA = "firmeza"        // 0 = cursor mais solto, 1 = mais firme
+    const val ROLAGEM = "rolagem"        // 0 = rola devagar, 1 = rola rápido
     const val SONS = "sons"
-    const val MINI_CAMERA = "mini_camera"
     const val GUIA_VISTO = "guia_visto"
+    const val JANELA_TAM = "janela_tamanho"
+    const val JANELA_X = "janela_x"
+    const val JANELA_Y = "janela_y"
+    const val TUTORIAL_FEITO = "tutorial_feito"
 
     fun prefs(c: Context): SharedPreferences = c.getSharedPreferences(ARQUIVO, Context.MODE_PRIVATE)
 
@@ -21,27 +25,27 @@ object Config {
         Ajustes.alturaArea = 0.75 - 0.26 * a
         val f = p.getFloat(FIRMEZA, 0.5f).toDouble()
         Ajustes.suaveMin = 0.95 - 0.7 * f
+        val r = p.getFloat(ROLAGEM, 0.5f).toDouble()
+        Ajustes.rolagemGanho = 1.6 + 1.6 * r
     }
 }
 
-/** Os gestos, do jeito que aparecem nos cartões de ajuda (demo = animação em DemoView). */
-data class CartaoGesto(val gesto: String, val faz: String, val dica: String, val demo: String)
+/** Os gestos, do jeito que aparecem nos cartões (demo = animação em DemoView; feito = contador do tutorial). */
+data class CartaoGesto(val gesto: String, val faz: String, val dica: String, val demo: String, val feito: String, val meta: Int = 1)
 
 val GUIA_GESTOS = listOf(
-    CartaoGesto("Indicador apontando", "Move o cursor", "Mexa a mão inteira, sem pressa", "mover"),
-    CartaoGesto("Pinça", "Toque", "Encoste o polegar no indicador e solte", "toque"),
-    CartaoGesto("2 pinças rápidas", "Toque duplo", "Bem rapidinho, no mesmo lugar", "duplo"),
-    CartaoGesto("Pinça parada", "Toque longo", "Segure a pinça meio segundo", "longo"),
-    CartaoGesto("Pinça + mover", "Arrastar / deslizar", "Feche, mova e solte", "arrastar"),
-    CartaoGesto("Dois dedos juntos", "Rolar a página", "A página acompanha a mão", "rolar"),
-    CartaoGesto("Só o mindinho", "Volume e zoom", "Sobe/desce = volume · lados = zoom", "volume_zoom"),
-    CartaoGesto("L (polegar + indicador)", "Voltar", "Segure até o anel fechar", "voltar"),
-    CartaoGesto("V aberto", "Tela inicial", "Indicador e médio separados", "inicio"),
-    CartaoGesto("Polegar para o lado", "Apps recentes", "Mão fechada, polegar apontando", "recentes"),
-    CartaoGesto("Joinha de costas", "Notificações", "Costas da mão para a câmera", "notificacoes"),
-    CartaoGesto("Polegar para baixo", "Fechar painel", "Também vale o chifrinho", "fechar_painel"),
-    CartaoGesto("Hang loose", "Captura de tela", "Polegar e mindinho abertos", "captura"),
-    CartaoGesto("Três dedos", "Ajustes rápidos", "Wi-Fi, brilho, Bluetooth", "ajustes"),
-    CartaoGesto("Quatro dedos", "Pausar / retomar", "Polegar dobrado na palma", "pausar"),
-    CartaoGesto("Mão aberta parada", "Mostrar / esconder ajuda", "Fique parada 1 segundo", "ajuda"),
+    CartaoGesto("Indicador apontando", "Mover o cursor", "Mexa a mão inteira, sem pressa", "mover", "mover_px", 1500),
+    CartaoGesto("Pinça e solta", "Tocar", "Encoste o polegar no indicador e solte", "toque", "toque"),
+    CartaoGesto("2 pinças rápidas", "Toque duplo", "Bem rapidinho, no mesmo lugar", "duplo", "duplo"),
+    CartaoGesto("Pinça parada", "Toque longo", "Segure a pinça meio segundo", "longo", "longo"),
+    CartaoGesto("Pinça + mover", "Arrastar", "Feche, mova a mão e solte", "arrastar", "arrastar"),
+    CartaoGesto("Dois dedos", "Rolar", "A página acompanha a mão", "rolar", "rolar"),
+    CartaoGesto("Só o mindinho", "Volume", "Suba a mão = mais alto", "volume", "volume", 2),
+    CartaoGesto("L: abra ou feche", "Zoom", "Como na tela, com polegar e indicador", "zoom", "zoom"),
+    CartaoGesto("Mão aberta para o lado", "Voltar", "Deslize rápido para a esquerda ou direita", "voltar", "voltar"),
+    CartaoGesto("Mão aberta para cima", "Tela inicial", "Um deslize rápido para cima", "inicio", "inicio"),
+    CartaoGesto("Mão aberta para baixo", "Notificações", "De novo para baixo = ajustes rápidos", "notificacoes", "notificacoes"),
+    CartaoGesto("Mão aberta parada", "Menu", "Apps recentes, captura, ajustes, ajuda…", "menu", "menu"),
+    CartaoGesto("Punho fechado", "Segurar o cursor", "Reposicione a mão sem mexer o cursor", "punho", "punho"),
+    CartaoGesto("Quatro dedos", "Pausar / retomar", "Polegar dobrado na palma, segure (2x: pausa e volta)", "pausar", "pausar", 2),
 )

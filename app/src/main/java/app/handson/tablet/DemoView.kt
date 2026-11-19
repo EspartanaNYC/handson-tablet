@@ -43,6 +43,7 @@ private val POL_LADO = doubleArrayOf(-1.10, 0.30)
 private val POL_CIMA = doubleArrayOf(-0.52, -0.40)
 private val POL_BAIXO = doubleArrayOf(-0.46, 1.22)
 private val POL_DOBRADO = doubleArrayOf(0.0, 0.40)
+private val POL_ZOOM_FECHADO = doubleArrayOf(-0.58, -0.40)
 
 private val NOS = arrayOf(doubleArrayOf(-0.34, 0.14), doubleArrayOf(-0.11, 0.06), doubleArrayOf(0.12, 0.1), doubleArrayOf(0.33, 0.2))
 private val COMP = doubleArrayOf(0.72, 0.8, 0.72, 0.56)
@@ -257,7 +258,7 @@ private fun cortina(n: Neon, w: Float, h: Float, k: Float, cor: Int) {
 // ───────────── as demonstrações ─────────────
 
 class Demo(val dur: Double, val legendas: List<String>, val mao: (Double) -> Quadro,
-           val cena: (Neon, Float, Float, Double) -> Unit)
+           val cena: (Neon, Float, Float, Double) -> Unit, val icone: Double = 0.35)
 
 private fun segurar(m: Mao, u: Double) = Quadro(listOf(m), anel(u, 0.18, 0.56), passos(u, 0.16, 0.58))
 
@@ -290,7 +291,7 @@ val DEMOS: Map<String, Demo> = mapOf(
             }
             onda(n, p[0], p[1], u, VERMELHO, 0.28)
             if (abre < 0.5) seta(n, p[0], p[1], OURO)
-        }),
+        }, icone = 0.25),
     "duplo" to Demo(4.0, listOf("Aponte para a foto", "Duas pinças rápidas, no mesmo lugar", "A foto aproxima (toque duplo)"),
         { u -> Quadro(listOf(Mao(d = d(1, 0, 0, 0), pol = POL_FORA,
             pin = fase(u, 0.2, 0.26) - fase(u, 0.28, 0.33) + fase(u, 0.36, 0.41) - fase(u, 0.43, 0.48))),
@@ -349,30 +350,45 @@ val DEMOS: Map<String, Demo> = mapOf(
             val yb = 6 + (h - 12) * pos
             n.reta(w - 8, yb - 8 * n.esc, w - 8, yb + 8 * n.esc, VERMELHO, 3f)
         }),
-    "volume_zoom" to Demo(5.4, listOf("Só o mindinho levantado", "Suba a mão: aumenta o volume", "Desça: diminui o volume",
-        "Para a direita: aproxima (zoom)", "Para a esquerda: afasta"),
+    "volume" to Demo(4.0, listOf("Só o mindinho levantado", "Suba a mão: aumenta o volume", "Desça a mão: diminui"),
         { u ->
-            val sobe = fase(u, 0.06, 0.22) - fase(u, 0.27, 0.43)
-            val lado = fase(u, 0.53, 0.69) - fase(u, 0.74, 0.9)
-            Quadro(listOf(Mao(d = d(0, 0, 0, 1), y = -0.32 * sobe, x = 0.36 * lado)), passo = passos(u, 0.05, 0.25, 0.5, 0.72), rastro = true)
+            val sobe = fase(u, 0.08, 0.32) - fase(u, 0.55, 0.85)
+            Quadro(listOf(Mao(d = d(0, 0, 0, 1), y = 0.12 - 0.36 * sobe)), passo = passos(u, 0.06, 0.5), rastro = true)
         },
         { n, w, h, u ->
-            val sobe = (fase(u, 0.06, 0.22) - fase(u, 0.27, 0.43)).toFloat()
-            val lado = (fase(u, 0.53, 0.69) - fase(u, 0.74, 0.9)).toFloat()
-            val bx = 18 * n.esc; val b0 = 12 * n.esc; val b1 = h - 12 * n.esc
-            n.ret(bx - 5 * n.esc, b0, bx + 5 * n.esc, b1, APAGADO, 1f, raio = 4 * n.esc)
-            val nivel = 0.35f + 0.55f * sobe
-            n.ret(bx - 3 * n.esc, b1 - (b1 - b0) * nivel, bx + 3 * n.esc, b1 - 2 * n.esc, VERMELHO, preencher = true, raio = 3 * n.esc)
-            n.escrever("vol", bx, b0 - 2 * n.esc + h * 0.0f, 9f, APAGADO, centro = true)
-            janela(n, 40 * n.esc, 6f, w - 6, h - 6, OURO)
-            n.c.save(); n.c.clipRect(40 * n.esc, 6f, w - 6, h - 6)
-            n.escrever("Aa", (40 * n.esc + w - 6) / 2, h / 2, 22f * (0.8f + 1.1f * lado), if (lado > 0.05f) VERMELHO else OURO, centro = true)
-            n.c.restore()
-        }),
-    "voltar" to Demo(3.6, listOf("Polegar e indicador formando um L", "Segure até o anel fechar", "Volta para a tela anterior"),
-        { u -> segurar(Mao(d = d(1, 0, 0, 0), pol = POL_L), u) },
+            val sobe = (fase(u, 0.08, 0.32) - fase(u, 0.55, 0.85)).toFloat()
+            val cx = w / 2; val cy = h / 2
+            val p = Path()
+            val k = n.esc * 1.6f
+            p.moveTo(cx - 60 * k, cy - 8 * k); p.lineTo(cx - 50 * k, cy - 8 * k); p.lineTo(cx - 36 * k, cy - 20 * k)
+            p.lineTo(cx - 36 * k, cy + 20 * k); p.lineTo(cx - 50 * k, cy + 8 * k); p.lineTo(cx - 60 * k, cy + 8 * k); p.close()
+            n.caminho(p, OURO, 1.5f)
+            for (i in 1..3) n.arco(cx - 34 * k, cy, (8 + 8 * i) * k, -40f, 80f, if (sobe > i / 4f) VERMELHO else APAGADO, 1.5f)
+            val b0 = 14 * n.esc; val b1 = h - 14 * n.esc; val bx = cx + 40 * k
+            n.ret(bx - 9 * n.esc, b0, bx + 9 * n.esc, b1, APAGADO, 1f, raio = 6 * n.esc)
+            val nivel = 0.3f + 0.6f * sobe
+            n.ret(bx - 6 * n.esc, b1 - (b1 - b0) * nivel, bx + 6 * n.esc, b1 - 3 * n.esc, VERMELHO, preencher = true, raio = 4 * n.esc)
+        }, icone = 0.2),
+    "zoom" to Demo(4.4, listOf("Faça um L com o polegar e o indicador", "Abra os dedos: aproxima (zoom +)",
+        "Feche os dedos: afasta (zoom −)"),
+        { u ->
+            val k = (0.45 + 0.55 * fase(u, 0.12, 0.38) - 0.95 * fase(u, 0.55, 0.82)).coerceIn(0.0, 1.0)
+            Quadro(listOf(Mao(d = d(1, 0, 0, 0), pol = mix(POL_ZOOM_FECHADO, POL_L, k))), passo = passos(u, 0.1, 0.5))
+        },
         { n, w, h, u ->
-            val volta = (fase(u, 0.58, 0.7) - fase(u, 0.95, 1.0)).toFloat()
+            val z = (1 + 0.7 * fase(u, 0.14, 0.4) - 0.9 * fase(u, 0.57, 0.84)).toFloat().coerceAtLeast(0.45f)
+            n.c.save(); n.c.clipRect(0f, 0f, w, h)
+            foto(n, w / 2, h / 2, w * 0.55f * z, h * 0.58f * z, OURO)
+            n.c.restore()
+            n.escrever(if (u < 0.5) "zoom +" else "zoom −", w - 30 * n.esc, 14 * n.esc, 12f, VERMELHO, centro = true)
+        }, icone = 0.3),
+    "voltar" to Demo(3.6, listOf("Mão aberta", "Deslize rápido para o lado", "Volta para a tela anterior"),
+        { u ->
+            val x = 0.38 - 0.76 * fase(u, 0.25, 0.36) + 0.76 * fase(u, 0.62, 0.95)
+            Quadro(listOf(Mao(d = d(1, 1, 1, 1), pol = POL_FORA, x = x)), passo = passos(u, 0.22, 0.38), rastro = u in 0.24..0.45)
+        },
+        { n, w, h, u ->
+            val volta = (fase(u, 0.38, 0.5) - fase(u, 0.95, 1.0)).toFloat()
             n.c.save(); n.c.clipRect(0f, 0f, w, h)
             for ((nome, ox) in listOf("2" to volta * w, "1" to (volta - 1) * w)) {
                 janela(n, ox + 6, 6f, ox + w - 6, h - 6, if (nome == "1") OURO_CLARO else OURO)
@@ -380,74 +396,79 @@ val DEMOS: Map<String, Demo> = mapOf(
                 n.escrever("tela $nome", ox + 14 * n.esc, h - 14 * n.esc, 11f, if (nome == "1") VERMELHO else OURO)
             }
             n.c.restore()
-            val on = u in 0.56..0.75
-            n.escrever("‹", 14 * n.esc, 16 * n.esc, 16f, if (on) VERMELHO else APAGADO, centro = true)
-        }),
-    "inicio" to Demo(3.6, listOf("Indicador e médio abertos em V", "Segure até o anel fechar", "Vai para a tela inicial"),
-        { u -> segurar(Mao(d = d(1, 1, 0, 0), a = doubleArrayOf(-14.0, 14.0, 0.0, 0.0)), u) },
+        }, icone = 0.1),
+    "inicio" to Demo(3.6, listOf("Mão aberta", "Deslize rápido para cima", "Vai para a tela inicial"),
+        { u ->
+            val y = 0.32 - 0.64 * fase(u, 0.25, 0.36) + 0.64 * fase(u, 0.62, 0.95)
+            Quadro(listOf(Mao(d = d(1, 1, 1, 1), pol = POL_FORA, y = y)), passo = passos(u, 0.22, 0.38), rastro = u in 0.24..0.45)
+        },
         { n, w, h, u ->
-            val k = (fase(u, 0.56, 0.68) - fase(u, 0.95, 1.0)).toFloat()
+            val k = (fase(u, 0.38, 0.5) - fase(u, 0.95, 1.0)).toFloat()
             gradeApps(n, w, h, if (k > 0.5) OURO else TRACO)
             if (k < 1f) {
                 val m = 4 + (w * 0.4f) * k; val mv = 4 + (h * 0.4f) * k
                 janela(n, m, mv, w - m, h - mv, OURO)
                 if (k < 0.3f) linhas(n, m + 2, mv + 10, w - m - 2, h - mv - 4, APAGADO)
             }
-        }),
-    "recentes" to Demo(3.6, listOf("Mão fechada, polegar para o lado", "Segure até o anel fechar", "Mostra os apps recentes"),
-        { u -> segurar(Mao(pol = POL_LADO, esp = -1), u) },
-        { n, w, h, u ->
-            val k = (fase(u, 0.56, 0.68) - fase(u, 0.95, 1.0)).toFloat()
-            val cw = w - 8 - (w - 8 - w * 0.34f) * k; val ch = h - 8 - (h - 8 - h * 0.62f) * k
-            for (i in -1..1) {
-                if (k < 0.2f && i != 0) continue
-                val cx = w / 2 + i * (w * 0.36f) * k
-                janela(n, cx - cw / 2, h / 2 - ch / 2, cx + cw / 2, h / 2 + ch / 2, if (i == 0) OURO else APAGADO)
-                linhas(n, cx - cw / 2 + 2, h / 2 - ch / 2 + 6, cx + cw / 2 - 2, h / 2 + ch / 2 - 4, APAGADO, passo = 10f)
-            }
-        }),
-    "notificacoes" to Demo(3.8, listOf("Joinha com as COSTAS da mão para a câmera", "Segure até o anel fechar", "Abre as notificações"),
-        { u -> segurar(Mao(pol = POL_CIMA, costas = true), u) },
+        }, icone = 0.1),
+    "notificacoes" to Demo(5.0, listOf("Mão aberta, mais para cima", "Deslize rápido para baixo: notificações",
+        "Deslize para baixo de novo...", "...e abrem os ajustes rápidos"),
+        { u ->
+            val y = -0.32 + 0.64 * fase(u, 0.16, 0.26) - 0.64 * fase(u, 0.32, 0.5) + 0.64 * fase(u, 0.56, 0.66) - 0.64 * fase(u, 0.75, 0.97)
+            Quadro(listOf(Mao(d = d(1, 1, 1, 1), pol = POL_FORA, y = y)), passo = passos(u, 0.14, 0.5, 0.66),
+                rastro = u in 0.15..0.32 || u in 0.55..0.72)
+        },
         { n, w, h, u ->
             gradeApps(n, w, h, TRACO)
-            cortina(n, w, h, (fase(u, 0.56, 0.68) - fase(u, 0.95, 1.0)).toFloat(), OURO)
-        }),
-    "fechar_painel" to Demo(3.6, listOf("Mão fechada, polegar para baixo", "Segure até o anel fechar",
-        "Fecha o painel (o chifrinho também vale)"),
-        { u -> segurar(Mao(pol = POL_BAIXO), u) },
-        { n, w, h, u ->
-            gradeApps(n, w, h, TRACO)
-            cortina(n, w, h, (1 - fase(u, 0.56, 0.68) + fase(u, 0.95, 1.0)).toFloat(), OURO)
-        }),
-    "captura" to Demo(3.6, listOf("Só o polegar e o mindinho abertos", "Segure até o anel fechar", "Tira uma captura de tela"),
-        { u -> segurar(Mao(d = d(0, 0, 0, 1), pol = POL_LONGE), u) },
-        { n, w, h, u ->
-            val enc = fase(u, 0.64, 0.8).toFloat()
-            val x0 = (w - 8) * 0.62f * enc; val y0 = (h - 8) * 0.62f * enc
-            if (u < 0.56 || u > 0.96) gradeApps(n, w, h, APAGADO)
-            else {
-                n.c.save(); n.c.translate(4 + x0, 4 + y0); n.c.scale(1 - 0.62f * enc, 1 - 0.62f * enc)
-                n.ret(0f, 0f, w - 8, h - 8, VERMELHO, 2f, fundo = ESCURO)
-                gradeApps(n, w - 8, h - 8, APAGADO)
-                n.c.restore()
-                val flash = (1 - ((u - 0.56) / 0.07)).coerceIn(0.0, 1.0)
-                if (flash > 0) { n.cheio.color = Color.argb((180 * flash).toInt(), 255, 230, 190); n.c.drawRect(0f, 0f, w, h, n.cheio) }
-            }
-        }),
-    "ajustes" to Demo(3.6, listOf("Indicador, médio e anelar levantados", "Segure até o anel fechar", "Abre os ajustes rápidos"),
-        { u -> segurar(Mao(d = d(1, 1, 1, 0), a = doubleArrayOf(-4.0, 0.0, 4.0, 0.0)), u) },
-        { n, w, h, u ->
-            gradeApps(n, w, h, TRACO)
-            val k = (fase(u, 0.56, 0.68) - fase(u, 0.95, 1.0)).toFloat()
-            if (k > 0.01f) {
-                val b = h * 0.7f * k
+            val k1 = (fase(u, 0.27, 0.37) - fase(u, 0.95, 1.0)).toFloat()
+            val k2 = (fase(u, 0.67, 0.77) - fase(u, 0.95, 1.0)).toFloat()
+            if (k2 > 0.01f) {
+                val b = h * (0.62f + 0.3f * k2)
                 n.ret(2f, 0f, w - 2, b, OURO, 1.3f, fundo = Color.rgb(24, 12, 14), raio = 8 * n.esc)
-                for (i in 0 until 6) {
-                    val cx = w * (0.5f + (i % 3)) / 3f; val cy = b - h * 0.7f + h * (0.2f + 0.26f * (i / 3))
-                    if (cy > 8) n.circulo(cx, cy, 10 * n.esc, if (i == 0 || i == 4) VERMELHO else OURO, 1.4f, preencher = i == 0)
+                for (i in 0 until 8) {
+                    val cx = w * (0.5f + (i % 4)) / 4f; val cy = h * (0.16f + 0.24f * (i / 4)) * (0.4f + 0.6f * k2)
+                    n.circulo(cx, cy, 11 * n.esc * k2, if (i == 0 || i == 5) VERMELHO else OURO, 1.4f, preencher = i == 0)
                 }
+                for (i in 0 until 2) n.ret(10f, b - h * (0.3f - 0.13f * i), w - 10, b - h * (0.2f - 0.13f * i), APAGADO, 1f, raio = 5 * n.esc)
+            } else cortina(n, w, h, k1, OURO)
+        }, icone = 0.1),
+    "menu" to Demo(5.0, listOf("Mão aberta e parada", "Espere o anel encher: o menu abre", "Mova a mão até o item",
+        "Faça a pinça (ou espere) para abrir"),
+        { u ->
+            val x = 0.3 * fase(u, 0.5, 0.6)
+            val m = if (u < 0.7) Mao(d = d(1, 1, 1, 1), pol = POL_FORA, x = x)
+                    else Mao(d = d(1, 0, 0, 0), pol = POL_FORA, x = x, pin = fase(u, 0.74, 0.8) - fase(u, 0.9, 0.95))
+            Quadro(listOf(m), anel(u, 0.08, 0.42), passos(u, 0.08, 0.46, 0.66))
+        },
+        { n, w, h, u ->
+            gradeApps(n, w, h, TRACO)
+            val k = (fase(u, 0.43, 0.5) - fase(u, 0.8, 0.84)).toFloat()
+            if (k > 0.01f) {
+                n.cheio.color = Color.argb((150 * k).toInt(), 8, 2, 2); n.c.drawRect(0f, 0f, w, h, n.cheio)
+                val cx = w / 2; val cy = h / 2; val r1 = min(w, h) * 0.44f * k; val r0 = r1 * 0.4f
+                for (i in 0 until 8) {
+                    val sel = i == 2 && u > 0.58
+                    n.arco(cx, cy, (r0 + r1) / 2, -90f + i * 45f - 19f, 38f, if (sel) VERMELHO else OURO, if (sel) 7f else 3f)
+                }
+                n.escrever("MENU", cx, cy, 10f, OURO_CLARO, centro = true)
             }
-        }),
+            val flash = ((u - 0.8) / 0.08).coerceIn(0.0, 1.0)
+            if (u in 0.8..0.93) { n.cheio.color = Color.argb((170 * (1 - flash)).toInt(), 255, 230, 190); n.c.drawRect(0f, 0f, w, h, n.cheio) }
+            if (u > 0.82) n.escrever("captura de tela!", w / 2, h - 14 * n.esc, 12f, VERMELHO, centro = true)
+        }, icone = 0.2),
+    "punho" to Demo(4.8, listOf("Aponte e mova o cursor", "Feche a mão e volte: o cursor fica parado",
+        "Abra e continue de onde parou"),
+        { u ->
+            val x = -0.35 + 0.5 * fase(u, 0.05, 0.3) - 0.5 * fase(u, 0.4, 0.6) + 0.5 * fase(u, 0.68, 0.93)
+            val fechado = u in 0.33..0.64
+            Quadro(listOf(Mao(d = if (fechado) d(0, 0, 0, 0) else d(1, 0, 0, 0), x = x)), passo = passos(u, 0.33, 0.64), rastro = true)
+        },
+        { n, w, h, u ->
+            gradeApps(n, w, h, TRACO)
+            val cx = w * (0.15f + 0.33f * fase(u, 0.05, 0.3).toFloat() + 0.33f * fase(u, 0.68, 0.93).toFloat())
+            if (u in 0.33..0.64) n.circulo(cx + 6 * n.esc, h * 0.5f + 9 * n.esc, 16 * n.esc, VERMELHO, 1.5f)
+            seta(n, cx, h * 0.5f, OURO)
+        }, icone = 0.45),
     "pausar" to Demo(4.8, listOf("Quatro dedos levantados", "Dobre o polegar na palma e segure",
         "Leitura pausada: repita para voltar", "Leitura retomada"),
         { u ->
@@ -464,21 +485,7 @@ val DEMOS: Map<String, Demo> = mapOf(
                 n.ret(cx + 4 * n.esc, cy - 16 * n.esc, cx + 12 * n.esc, cy + 16 * n.esc, VERMELHO, preencher = true)
                 n.escrever("PAUSADO", cx, cy + 32 * n.esc, 12f, VERMELHO, centro = true)
             } else seta(n, w * 0.55f, h * 0.45f, OURO)
-        }),
-    "ajuda" to Demo(4.0, listOf("Mão aberta e parada", "Espere o anel encher", "Aparece a ajuda com os gestos (repita para fechar)"),
-        { u -> Quadro(listOf(Mao(d = d(1, 1, 1, 1), pol = POL_FORA)), anel(u, 0.1, 0.45), passos(u, 0.08, 0.47)) },
-        { n, w, h, u ->
-            gradeApps(n, w, h, TRACO)
-            val k = (fase(u, 0.47, 0.56) - fase(u, 0.95, 1.0)).toFloat()
-            if (k > 0.01f) {
-                n.cheio.color = Color.argb((190 * k).toInt(), 8, 2, 2); n.c.drawRect(0f, 0f, w, h, n.cheio)
-                for (i in 0 until 8) {
-                    val cx = w * (0.5f + i % 4) / 4f; val cy = h * (0.3f + 0.4f * (i / 4))
-                    val cw = w / 4.6f * k; val ch = h * 0.3f * k
-                    n.ret(cx - cw / 2, cy - ch / 2, cx + cw / 2, cy + ch / 2, if (i == 1) VERMELHO else OURO, 1f, raio = 4 * n.esc)
-                }
-            }
-        }),
+        }, icone = 0.3),
 )
 
 /**
@@ -499,7 +506,7 @@ class DemoView(context: Context) : View(context) {
         val W = width.toFloat(); val H = height.toFloat()
         if (miniatura) {
             n.esc = (min(W, H) / 64f).coerceIn(0.4f, 2f)
-            val q = dm.mao(0.35)
+            val q = dm.mao(dm.icone)
             for (m in q.maos) desenharMao(n, W / 2, H * 0.47f, min(W, H) * 0.4f, m, OURO, VERMELHO)
             return
         }
