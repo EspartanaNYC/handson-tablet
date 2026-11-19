@@ -492,12 +492,12 @@ class HandsOnService : AccessibilityService(), LifecycleOwner, Acoes,
     }
 
     /** Teste automático: o dedo virtual arrasta a tela para cima (usado no teste do tablet virtual). */
-    private fun testeDedo() {
+    fun testeDedo(atrasoMs: Long = 0) {
         val t = tamanhoTela()
         val x = t.x / 2f; val y0 = t.y * 0.75f
-        dedo.descer(x, y0)
-        for (i in 1..20) principal.postDelayed({ dedo.mover(x, y0 - i * t.y * 0.025f) }, i * 35L)
-        principal.postDelayed({ dedo.subir() }, 800)
+        principal.postDelayed({ dedo.descer(x, y0) }, atrasoMs)
+        for (i in 1..20) principal.postDelayed({ dedo.mover(x, y0 - i * t.y * 0.025f) }, atrasoMs + i * 35L)
+        principal.postDelayed({ dedo.subir() }, atrasoMs + 800)
     }
 
     // ───────────────────────── ações (Acoes) ─────────────────────────

@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        intent?.getStringExtra("aba")?.let { aba.value = it }
+        extras(intent)
         setContent {
             MaterialTheme(
                 colorScheme = darkColorScheme(
@@ -77,7 +77,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        intent.getStringExtra("aba")?.let { aba.value = it }
+        extras(intent)
+    }
+
+    private fun extras(i: Intent?) {
+        i?.getStringExtra("aba")?.let { aba.value = it }
+        when (i?.getStringExtra("teste")) {          // usados pelo teste automático
+            "ligar" -> HandsOnService.pedir(this, HandsOnService.LIGAR)
+            "dedo" -> HandsOnService.instancia?.testeDedo(5000)
+        }
     }
 
     /** Atalhos de teclado com o app aberto: a tecla sozinha (em outros apps: Ctrl + Alt + tecla). */

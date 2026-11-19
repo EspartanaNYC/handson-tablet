@@ -43,6 +43,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          find telas -size 0 -delete
           cd telas && zip -q ../telas_teste.zip * && cd ..
           gh release delete teste --yes --cleanup-tag || true
           gh release create teste telas/*.png telas/*.txt telas_teste.zip --prerelease \

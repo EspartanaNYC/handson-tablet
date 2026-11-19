@@ -47,23 +47,24 @@ adb exec-out screencap -p > telas/05_ajustes.png
 # ativa o serviço de acessibilidade e liga
 adb shell settings put secure enabled_accessibility_services $PKG/$PKG.HandsOnService
 adb shell settings put secure accessibility_enabled 1
-sleep 5
+sleep 8
 adb shell am start -n $PKG/.MainActivity
 sleep 3
-toca_texto "Início"; sleep 2
-toca_texto "Ligar o HandsOn" || adb shell am startservice -n $PKG/.HandsOnService -a $PKG.LIGAR
+toca_texto "Início"; sleep 4
+adb exec-out screencap -p > telas/06a_pronto.png
+toca_texto "Ligar o HandsOn" || adb shell am start -n $PKG/.MainActivity --es teste ligar
 sleep 14
 adb exec-out screencap -p > telas/06_ligado.png
 toca_texto "Tutorial"; sleep 4
 adb exec-out screencap -p > telas/07_tutorial.png
 
 # outro app: o dedo virtual rola a tela de Configurações
-adb shell input keyevent KEYCODE_HOME; sleep 2
-adb shell am start -a android.settings.SETTINGS; sleep 6
+adb shell am start -n $PKG/.MainActivity --es teste dedo
+sleep 1
+adb shell am start -a android.settings.SETTINGS; sleep 2
 adb exec-out screencap -p > telas/08_config_antes.png
 adb shell uiautomator dump /sdcard/a.xml >/dev/null 2>&1; adb pull /sdcard/a.xml antes.xml >/dev/null 2>&1
-adb shell am startservice -n $PKG/.HandsOnService -a $PKG.TESTE_DEDO
-sleep 3
+sleep 6
 adb exec-out screencap -p > telas/09_config_depois.png
 adb shell uiautomator dump /sdcard/b.xml >/dev/null 2>&1; adb pull /sdcard/b.xml depois.xml >/dev/null 2>&1
 python3 - <<'PY' > telas/rolagem.txt
@@ -76,7 +77,7 @@ print("antes:", a[:12]); print("depois:", b[:12])
 print("ROLOU" if a[:12] != b[:12] else "NAO ROLOU")
 PY
 cat telas/rolagem.txt
-adb shell dumpsys activity services $PKG | grep -E "isForeground|foregroundId" > telas/primeiro_plano.txt
+( echo "servico:"; adb shell dumpsys activity services $PKG | grep -E "isForeground|foregroundId" ) > telas/primeiro_plano.txt
 adb logcat -d > telas/logcat.txt
 grep -E "FATAL EXCEPTION|AndroidRuntime|HandsOn" telas/logcat.txt | head -200 > telas/resumo_log.txt
 if grep -q "FATAL EXCEPTION" telas/logcat.txt; then echo "O APP FECHOU SOZINHO (crash)"; exit 1; fi
