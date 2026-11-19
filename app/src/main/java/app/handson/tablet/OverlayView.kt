@@ -155,7 +155,7 @@ class OverlayView(context: Context) : View(context) {
         val colunas = if (W > H) 4 else 2
         val linhas = (GUIA_GESTOS.size + colunas - 1) / colunas
         val margem = 24 * dp
-        val topo = y0 + 74 * dp
+        val topo = y0 + (if (miniCamera) 172 else 74) * dp      // começa abaixo da mini câmera
         val base = y0 + H - 64 * dp
         val cw = (W - margem * 2 - (colunas - 1) * 12 * dp) / colunas
         val ch = min(92 * dp, (base - topo - (linhas - 1) * 10 * dp) / linhas)
