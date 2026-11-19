@@ -55,18 +55,18 @@ adb exec-out screencap -p > telas/06a_pronto.png
 toca_texto "Ligar o HandsOn" || adb shell am start -n $PKG/.MainActivity --es teste ligar
 sleep 14
 adb exec-out screencap -p > telas/06_ligado.png
-toca_texto "Tutorial"; sleep 4
+# daqui em diante, nada de "uiautomator": ele desliga os serviços de acessibilidade enquanto roda
+adb shell am start -n $PKG/.MainActivity --es aba tutorial; sleep 4
 adb exec-out screencap -p > telas/07_tutorial.png
 
 # outro app: o dedo virtual rola a tela de Configurações
 adb shell am start -n $PKG/.MainActivity --es teste dedo
 sleep 1
-adb shell am start -a android.settings.SETTINGS; sleep 2
+adb shell am start -a android.settings.SETTINGS; sleep 3
 adb exec-out screencap -p > telas/08_config_antes.png
-adb shell uiautomator dump /sdcard/a.xml >/dev/null 2>&1; adb pull /sdcard/a.xml antes.xml >/dev/null 2>&1
-sleep 6
+sleep 5
 adb exec-out screencap -p > telas/09_config_depois.png
-adb shell uiautomator dump /sdcard/b.xml >/dev/null 2>&1; adb pull /sdcard/b.xml depois.xml >/dev/null 2>&1
+echo ok > antes.xml; echo ok > depois.xml
 python3 - <<'PY' > telas/rolagem.txt
 import re
 def textos(f):
@@ -74,7 +74,7 @@ def textos(f):
     return [t for t in re.findall(r' text="([^"]+)"', x)]
 a, b = textos("antes.xml"), textos("depois.xml")
 print("antes:", a[:12]); print("depois:", b[:12])
-print("ROLOU" if a[:12] != b[:12] else "NAO ROLOU")
+print("(comparar as telas 08 e 09)")
 PY
 cat telas/rolagem.txt
 ( echo "servico:"; adb shell dumpsys activity services $PKG | grep -E "isForeground|foregroundId" ) > telas/primeiro_plano.txt

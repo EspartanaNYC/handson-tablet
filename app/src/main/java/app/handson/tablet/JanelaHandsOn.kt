@@ -118,7 +118,15 @@ class JanelaHandsOn(
 
     fun querQuadro() = visivel && !minimizada
     fun novoQuadro(b: Bitmap) { quadro = b }
-    fun atualizar() { if (visivel) view.postInvalidateOnAnimation() }
+    fun atualizar() {
+        if (!visivel) return
+        view.post {
+            // com a ajuda ou o menu na tela, a janela fica transparente para não tapar
+            val a = if (painel.ajuda || painel.menuAberto) 0.3f else 1f
+            if (view.alpha != a) view.alpha = a
+            view.invalidate()
+        }
+    }
 }
 
 @SuppressLint("ViewConstructor")
