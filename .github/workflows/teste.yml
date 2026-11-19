@@ -1,0 +1,49 @@
+name: Testar o app num tablet virtual
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  emulador:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Montar (com todas as arquiteturas)
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug -PtodasAbis=true
+      - name: Ligar a virtualização
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Testar no tablet virtual
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_tablet
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-front emulated
+          script: bash .github/teste_no_emulador.sh
+      - name: Guardar as telas do teste
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd telas && zip -q ../telas_teste.zip * && cd ..
+          gh release delete teste --yes --cleanup-tag || true
+          gh release create teste telas/*.png telas/*.txt telas_teste.zip --prerelease \
+            --title "Teste automático (versão ${{ github.run_number }})" --notes "Telas do teste no tablet virtual."
