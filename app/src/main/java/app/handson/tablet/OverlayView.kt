@@ -26,6 +26,7 @@ class OverlayView(context: Context) : View(context) {
     private val cheio = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
     private val texto = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE; typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL) }
     private val onde = IntArray(2)
+    private val neon = Neon()
     private val ret = RectF()
 
     private val OSSOS = arrayOf(
@@ -173,12 +174,24 @@ class OverlayView(context: Context) : View(context) {
             cheio.color = VERMELHO
             c.drawRect(l, t + 14 * dp, l + 4 * dp, t + ch - 14 * dp, cheio)
             val s1 = ch / 92f / dp
+            // desenho da mão fazendo o gesto (mesmo das demonstrações do app)
+            val lente = ch * 0.36f
+            val lx = l + 14 * dp + lente; val ly = t + ch / 2
+            cheio.color = Color.rgb(16, 8, 10); c.drawCircle(lx, ly, lente, cheio)
+            traco.color = Color.argb(140, 232, 176, 74); traco.strokeWidth = 1f * dp
+            c.drawCircle(lx, ly, lente, traco)
+            DEMOS[g.demo]?.let { dm ->
+                neon.c = c; neon.esc = dp * 0.55f
+                for (m in dm.mao(0.35).maos) desenharMao(neon, lx, ly - lente * 0.08f, lente * 0.62f, m, OURO, VERMELHO)
+            }
+            val tx = lx + lente + 10 * dp
+            val tw = l + cw - tx - 8 * dp
             texto.color = OURO; texto.textSize = 17 * dp * s1.coerceIn(0.75f, 1f)
-            c.drawText(cortar(g.faz, cw - 28 * dp), l + 16 * dp, t + ch * 0.34f, texto)
+            c.drawText(cortar(g.faz, tw), tx, t + ch * 0.34f, texto)
             texto.color = Color.WHITE; texto.textSize = 14 * dp * s1.coerceIn(0.75f, 1f)
-            c.drawText(cortar(g.gesto, cw - 28 * dp), l + 16 * dp, t + ch * 0.60f, texto)
+            c.drawText(cortar(g.gesto, tw), tx, t + ch * 0.60f, texto)
             texto.color = Color.argb(170, 255, 255, 255); texto.textSize = 12 * dp * s1.coerceIn(0.75f, 1f)
-            c.drawText(cortar(g.dica, cw - 28 * dp), l + 16 * dp, t + ch * 0.83f, texto)
+            c.drawText(cortar(g.dica, tw), tx, t + ch * 0.83f, texto)
         }
         texto.textSize = 15 * dp; texto.color = Color.argb(220, 255, 255, 255)
         val rodape = "Gestos com anel: segure até o anel dourado fechar  ·  mão aberta parada 1 s fecha esta ajuda"

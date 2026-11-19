@@ -14,6 +14,8 @@ android {
         applicationId = "app.handson.tablet"
         minSdk = 28
         targetSdk = 35
+        // só os processadores de tablets e celulares atuais: o app fica bem menor
+        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
         versionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
         versionName = "1.0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
     }

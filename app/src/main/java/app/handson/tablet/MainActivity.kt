@@ -34,6 +34,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.delay
 
@@ -210,30 +213,77 @@ fun Preparar(camera: Boolean, acess: Boolean, ligado: Boolean, erro: String?, pe
     erro?.let { Text(it, color = Vermelho, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp)) }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Guia() {
+    var aberto by remember { mutableStateOf<CartaoGesto?>(null) }
     Text("Gestos", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+    Text("Toque num gesto para ver como se faz", color = Ouro.copy(alpha = 0.8f), fontSize = 14.sp)
     Spacer(Modifier.height(10.dp))
     val colunas = 2
     GUIA_GESTOS.chunked(colunas).forEach { linha ->
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(bottom = 10.dp)) {
             linha.forEach { g ->
                 Surface(
+                    onClick = { aberto = g },
                     shape = RoundedCornerShape(14.dp), color = Cartao,
                     border = BorderStroke(1.dp, Ouro.copy(alpha = 0.25f)), modifier = Modifier.weight(1f)
                 ) {
-                    Row(Modifier.padding(12.dp)) {
-                        Box(Modifier.width(4.dp).height(52.dp).clip(RoundedCornerShape(2.dp)).background(Vermelho))
+                    Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            Modifier.size(58.dp).clip(CircleShape).background(Color(0xFF100709))
+                                .border(1.dp, Ouro.copy(alpha = 0.45f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            AndroidView(
+                                factory = { DemoView(it).apply { miniatura = true; demo = g.demo } },
+                                update = { it.demo = g.demo },
+                                modifier = Modifier.size(52.dp)
+                            )
+                        }
                         Spacer(Modifier.width(10.dp))
-                        Column {
+                        Column(Modifier.weight(1f)) {
                             Text(g.faz, color = Ouro, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                             Text(g.gesto, fontSize = 14.sp)
                             Text(g.dica, color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
                         }
+                        Text("▶", color = Vermelho, fontSize = 14.sp)
                     }
                 }
             }
             if (linha.size < colunas) Spacer(Modifier.weight(1f))
+        }
+    }
+    aberto?.let { g -> Demonstracao(g) { aberto = null } }
+}
+
+@Composable
+fun Demonstracao(g: CartaoGesto, fechar: () -> Unit) {
+    Dialog(onDismissRequest = fechar, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(
+            shape = RoundedCornerShape(22.dp), color = Color(0xFF140809),
+            border = BorderStroke(1.5.dp, Ouro.copy(alpha = 0.7f)),
+            modifier = Modifier.fillMaxWidth(0.86f).widthIn(max = 900.dp)
+        ) {
+            Column(Modifier.padding(20.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.width(5.dp).height(34.dp).clip(RoundedCornerShape(3.dp)).background(Vermelho))
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(g.faz, color = Ouro, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                        Text(g.gesto + "  ·  " + g.dica, color = Color.White.copy(alpha = 0.75f), fontSize = 15.sp)
+                    }
+                    TextButton(onClick = fechar) { Text("Fechar", fontSize = 16.sp) }
+                }
+                Spacer(Modifier.height(12.dp))
+                AndroidView(
+                    factory = { DemoView(it).apply { demo = g.demo } },
+                    update = { if (it.demo != g.demo) it.demo = g.demo },
+                    modifier = Modifier.fillMaxWidth().aspectRatio(2.15f)
+                )
+                Text("Toque fora para fechar", color = Color.White.copy(alpha = 0.45f), fontSize = 12.sp,
+                    modifier = Modifier.align(Alignment.End).padding(top = 6.dp))
+            }
         }
     }
 }

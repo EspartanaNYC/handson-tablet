@@ -24,24 +24,24 @@ object Config {
     }
 }
 
-/** Os gestos, do jeito que aparecem nos cartões de ajuda. */
-data class CartaoGesto(val gesto: String, val faz: String, val dica: String)
+/** Os gestos, do jeito que aparecem nos cartões de ajuda (demo = animação em DemoView). */
+data class CartaoGesto(val gesto: String, val faz: String, val dica: String, val demo: String)
 
 val GUIA_GESTOS = listOf(
-    CartaoGesto("Indicador apontando", "Move o cursor", "Mexa a mão inteira, sem pressa"),
-    CartaoGesto("Pinça", "Toque", "Encoste o polegar no indicador e solte"),
-    CartaoGesto("2 pinças rápidas", "Toque duplo", "Bem rapidinho, no mesmo lugar"),
-    CartaoGesto("Pinça parada", "Toque longo", "Segure a pinça meio segundo"),
-    CartaoGesto("Pinça + mover", "Arrastar / deslizar", "Feche, mova e solte"),
-    CartaoGesto("Dois dedos juntos", "Rolar a página", "A página acompanha a mão"),
-    CartaoGesto("Só o mindinho", "Volume e zoom", "Sobe/desce = volume · lados = zoom"),
-    CartaoGesto("L (polegar + indicador)", "Voltar", "Segure até o anel fechar"),
-    CartaoGesto("V aberto", "Tela inicial", "Indicador e médio separados"),
-    CartaoGesto("Polegar para o lado", "Apps recentes", "Mão fechada, polegar apontando"),
-    CartaoGesto("Joinha de costas", "Notificações", "Costas da mão para a câmera"),
-    CartaoGesto("Polegar para baixo", "Fechar painel", "Também vale o chifrinho"),
-    CartaoGesto("Hang loose", "Captura de tela", "Polegar e mindinho abertos"),
-    CartaoGesto("Três dedos", "Ajustes rápidos", "Wi-Fi, brilho, Bluetooth"),
-    CartaoGesto("Quatro dedos", "Pausar / retomar", "Polegar dobrado na palma"),
-    CartaoGesto("Mão aberta parada", "Mostrar / esconder ajuda", "Fique parada 1 segundo"),
+    CartaoGesto("Indicador apontando", "Move o cursor", "Mexa a mão inteira, sem pressa", "mover"),
+    CartaoGesto("Pinça", "Toque", "Encoste o polegar no indicador e solte", "toque"),
+    CartaoGesto("2 pinças rápidas", "Toque duplo", "Bem rapidinho, no mesmo lugar", "duplo"),
+    CartaoGesto("Pinça parada", "Toque longo", "Segure a pinça meio segundo", "longo"),
+    CartaoGesto("Pinça + mover", "Arrastar / deslizar", "Feche, mova e solte", "arrastar"),
+    CartaoGesto("Dois dedos juntos", "Rolar a página", "A página acompanha a mão", "rolar"),
+    CartaoGesto("Só o mindinho", "Volume e zoom", "Sobe/desce = volume · lados = zoom", "volume_zoom"),
+    CartaoGesto("L (polegar + indicador)", "Voltar", "Segure até o anel fechar", "voltar"),
+    CartaoGesto("V aberto", "Tela inicial", "Indicador e médio separados", "inicio"),
+    CartaoGesto("Polegar para o lado", "Apps recentes", "Mão fechada, polegar apontando", "recentes"),
+    CartaoGesto("Joinha de costas", "Notificações", "Costas da mão para a câmera", "notificacoes"),
+    CartaoGesto("Polegar para baixo", "Fechar painel", "Também vale o chifrinho", "fechar_painel"),
+    CartaoGesto("Hang loose", "Captura de tela", "Polegar e mindinho abertos", "captura"),
+    CartaoGesto("Três dedos", "Ajustes rápidos", "Wi-Fi, brilho, Bluetooth", "ajustes"),
+    CartaoGesto("Quatro dedos", "Pausar / retomar", "Polegar dobrado na palma", "pausar"),
+    CartaoGesto("Mão aberta parada", "Mostrar / esconder ajuda", "Fique parada 1 segundo", "ajuda"),
 )
